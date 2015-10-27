@@ -2,6 +2,7 @@ package joe.brush.util;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.widget.ImageView;
 
 import java.io.BufferedInputStream;
@@ -49,16 +50,40 @@ public class ImageUtil {
      * 获取缩放比例
      */
     public static int getBitmapScaleInSampleSize(BitmapFactory.Options op, int reqWidth, int reqHeight) {
-        int width = op.outWidth;
-        int height = op.outHeight;
-        int inSampleSize = 1;
-        if (width > reqWidth || height > reqHeight) {
-            int widthRadio = Math.round(width * 1.0f / reqWidth);
-            int heightRadio = Math.round(height * 1.0f / reqHeight);
+        return computeSampleSize(op, -1, reqWidth * reqHeight);
+    }
 
-            inSampleSize = Math.max(widthRadio, heightRadio);
+    public static int computeSampleSize(BitmapFactory.Options options, int minSideLength, int maxNumOfPixels) {
+        int initialSize = computeInitialSampleSize(options, minSideLength, maxNumOfPixels);
+        int roundedSize;
+        if (initialSize <= 8) {
+            roundedSize = 1;
+            while (roundedSize < initialSize) {
+                roundedSize <<= 1;
+            }
+        } else {
+            roundedSize = (initialSize + 7) / 8 * 8;
         }
-        return inSampleSize;
+        return roundedSize;
+    }
+
+    private static int computeInitialSampleSize(BitmapFactory.Options options, int minSideLength, int maxNumOfPixels) {
+        double w = options.outWidth;
+        double h = options.outHeight;
+        Log.d("Brush", "pic width:" + w + "   height:" + h);
+        int lowerBound = (maxNumOfPixels == -1) ? 1 : (int) Math.ceil(Math.sqrt(w * h / maxNumOfPixels));
+        int upperBound = (minSideLength == -1) ? 128 : (int) Math.min(Math.floor(w / minSideLength), Math.floor(h / minSideLength));
+        if (upperBound < lowerBound) {
+            // return the larger one when there is no overlapping zone.
+            return lowerBound;
+        }
+        if ((maxNumOfPixels == -1) && (minSideLength == -1)) {
+            return 1;
+        } else if (minSideLength == -1) {
+            return lowerBound;
+        } else {
+            return upperBound;
+        }
     }
 
     /**
@@ -74,14 +99,14 @@ public class ImageUtil {
 
             BitmapFactory.Options opts = new BitmapFactory.Options();
             opts.inJustDecodeBounds = true;
-            Bitmap bitmap;
+            Bitmap temp = BitmapFactory.decodeStream(is, null, opts);
 
             ImageSize imageSize = ViewUtil.getImageViewSize(imageView);
             opts.inSampleSize = getBitmapScaleInSampleSize(opts, imageSize.width, imageSize.height);
 
             opts.inJustDecodeBounds = false;
             is.reset();
-            bitmap = BitmapFactory.decodeStream(is, null, opts);
+            Bitmap bitmap = BitmapFactory.decodeStream(is, null, opts);
             conn.disconnect();
             return bitmap;
         } catch (IOException e) {
@@ -137,6 +162,7 @@ public class ImageUtil {
      * 从本地获取图片
      */
     public static Bitmap getBitmapFromLocal(String filePah, ImageView imageView) {
+        Log.d("Brush", "image path:" + filePah);
         InputStream is = null;
         try {
             File file = new File(filePah);
@@ -144,14 +170,17 @@ public class ImageUtil {
 
             BitmapFactory.Options opts = new BitmapFactory.Options();
             opts.inJustDecodeBounds = true;
-            Bitmap bitmap;
+            Bitmap temp = BitmapFactory.decodeStream(is, null, opts);
+            is.close();
 
             ImageSize imageSize = ViewUtil.getImageViewSize(imageView);
+            Log.d("Brush", "imageveiw width:" + imageSize.width + "  height:" + imageSize.height);
             opts.inSampleSize = getBitmapScaleInSampleSize(opts, imageSize.width, imageSize.height);
-
+            Log.d("Brush", "inSampleSize:" + opts.inSampleSize);
             opts.inJustDecodeBounds = false;
-            is.reset();
-            bitmap = BitmapFactory.decodeStream(is, null, opts);
+
+            is = new FileInputStream(file);
+            Bitmap bitmap = BitmapFactory.decodeStream(is, null, opts);
             return bitmap;
         } catch (IOException e) {
             e.printStackTrace();

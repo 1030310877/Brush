@@ -16,6 +16,7 @@ import joe.brush.bean.ImageObject;
 import joe.brush.config.BrushOptions;
 import joe.brush.task.LoadTask;
 import joe.brush.util.CacheManager;
+import joe.brush.util.ImageUtil;
 
 /**
  * Description 图像异步加载类
@@ -63,7 +64,7 @@ public class Brush {
     private Brush() {
         brushOptions = new BrushOptions();
 
-        cacheManager.getInstance(brushOptions);
+        cacheManager = CacheManager.getInstance(brushOptions);
         threadPool = Executors.newFixedThreadPool(brushOptions.threadCount);
         taskQueue = new LinkedList<>();
         semaphoreThreadPool = new Semaphore(brushOptions.threadCount);
@@ -98,12 +99,10 @@ public class Brush {
 
     public void paintImage(String path, final ImageView imageView) {
         imageView.setTag(path);
-
         boolean isNet = false;
         if (URLUtil.isNetworkUrl(path)) {
             isNet = true;
         }
-
         if (mUIHandler == null) {
             mUIHandler = new Handler() {
                 @Override
@@ -116,6 +115,7 @@ public class Brush {
                         if (imgView.getTag().toString().equals(path)) {
                             imgView.setImageBitmap(bm);
                         }
+                        semaphoreThreadPool.release();
                     }
                 }
             };
@@ -125,8 +125,17 @@ public class Brush {
         Bitmap bm = cacheManager.getBitmapFromLruCache(path);
 
         if (bm == null) {
-            //  内存缓存中不存在，从存储获取或下载
-            addTask(new LoadTask(path, imageView, brushOptions, cacheManager, mUIHandler));
+            if (isNet) {
+                //  是网络地址，且内存缓存中不存在，从存储获取或下载
+                addTask(new LoadTask(path, imageView, brushOptions, cacheManager, mUIHandler));
+            } else {
+                //  不是网络地址，尝试从本地获取
+                bm = ImageUtil.getBitmapFromLocal(path, imageView);
+                ImageObject imageBean = new ImageObject(bm, path, imageView);
+                Message msg = mUIHandler.obtainMessage(LOAD_IMAGE);
+                msg.obj = imageBean;
+                mUIHandler.sendMessage(msg);
+            }
         } else {
             ImageObject imageBean = new ImageObject(bm, path, imageView);
             Message msg = mUIHandler.obtainMessage(LOAD_IMAGE);
@@ -162,5 +171,8 @@ public class Brush {
         this.brushOptions = brushOptions;
         cacheManager.setOptions(brushOptions);
         return instance;
+    }
+
+    public void pauseLoad() {
     }
 }

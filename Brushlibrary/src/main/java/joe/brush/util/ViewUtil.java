@@ -27,7 +27,7 @@ public class ViewUtil {
         if (width <= 0) {
             width = imageView.getMeasuredWidth();
         }
-        if (width <= 0) {
+        if (width <= 0 && lp != null) {
             width = lp.width;
         }
         if (width <= 0) {
@@ -38,7 +38,7 @@ public class ViewUtil {
         if (height <= 0) {
             height = imageView.getMeasuredHeight();
         }
-        if (height <= 0) {
+        if (height <= 0 && lp != null) {
             height = lp.height;
         }
         if (height <= 0) {
