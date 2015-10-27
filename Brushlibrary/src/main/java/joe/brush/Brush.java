@@ -5,9 +5,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.widget.ImageView;
 
-import java.util.LinkedList;
-import java.util.concurrent.Semaphore;
-
 import joe.brush.bean.ImageObject;
 import joe.brush.config.BrushOptions;
 import joe.brush.engine.LoadEngine;
@@ -45,20 +42,12 @@ public class Brush {
     //  缓存管理类
     private CacheManager cacheManager;
 
-    // 任务链
-    private LinkedList<Runnable> taskQueue;
-    // PV池
-    private Semaphore semaphoreThreadPool;
-
     // UI线程
     private Handler mUIHandler;
 
     private Brush() {
         brushOptions = new BrushOptions();
-        engine = new LoadEngine(brushOptions);
         cacheManager = CacheManager.getInstance(brushOptions);
-        taskQueue = new LinkedList<>();
-        semaphoreThreadPool = new Semaphore(brushOptions.threadCount);
 
         mUIHandler = new Handler() {
             @Override
@@ -68,30 +57,36 @@ public class Brush {
                     Bitmap bm = imageObject.bm;
                     ImageView imgView = imageObject.imageView;
                     String path = imageObject.path;
-                    imgView.setImageBitmap(bm);
-                    engine.removeImageView(imgView);    //移除ImageView的记录
-                    semaphoreThreadPool.release();
+                    if (engine.generateKey(path).equals(engine.getImageViewString(imgView))) {
+                        imgView.setImageBitmap(bm);
+                        engine.removeImageView(imgView);    //移除ImageView的记录
+                    } else {
+                        if (bm != null) {
+                            bm.recycle();
+                            bm = null;
+                        }
+                    }
                 }
             }
         };
+        engine = new LoadEngine(brushOptions, mUIHandler);
     }
 
     public void paintImage(String path, final ImageView imageView) {
         engine.recordImageView(imageView, path);
         imageView.setImageResource(R.mipmap.pic_loading);
-        addTask(new LoadTask(engine, path, imageView, brushOptions, cacheManager, mUIHandler));
-    }
 
-    /**
-     * 添加读取任务
-     */
-    private synchronized void addTask(LoadTask loadTask) {
-        taskQueue.add(loadTask);
-        engine.execute(getTask());
-    }
-
-    private Runnable getTask() {
-        return taskQueue.removeFirst();
+        //  从缓存中读取Bitmap
+        Bitmap bm = cacheManager.getBitmapFromLruCache(path);
+        if (bm != null && !bm.isRecycled()) {
+            ImageObject imageBean = new ImageObject(bm, path, imageView);
+            Message msg = mUIHandler.obtainMessage(Brush.LOAD_IMAGE);
+            msg.obj = imageBean;
+            mUIHandler.sendMessage(msg);
+        } else {
+            LoadTask task = new LoadTask(engine, path, imageView, brushOptions, cacheManager, mUIHandler);
+            engine.execute(task);
+        }
     }
 
     public BrushOptions getBrushOptions() {
@@ -106,5 +101,27 @@ public class Brush {
 
     public void pauseLoad() {
     }
-
+//
+//    private boolean waitIfPaused() {
+//        AtomicBoolean pause = engine.getPaused();
+//        if (pause.get()) {
+//            synchronized (engine.getPauseLock()) {
+//                if (pause.get()) {
+//                    Log.d("Brush", "task is paused");
+//                    try {
+//                        engine.getPauseLock().wait();
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                        return true;
+//                    }
+//                }
+//            }
+//        }
+//        return false;
+//    }
+//
+//    private boolean isViewReused(String path, ImageView imageView) {
+//        String cacehString = engine.getImageViewString(imageView);
+//        return !engine.generateKey(path).equals(cacehString);
+//    }
 }

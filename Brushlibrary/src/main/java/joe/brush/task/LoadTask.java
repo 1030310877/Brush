@@ -5,7 +5,6 @@ import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.webkit.URLUtil;
 import android.widget.ImageView;
 
 import java.io.File;
@@ -41,6 +40,14 @@ public class LoadTask implements Runnable {
         handler = uiHandler;
     }
 
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public ImageView getmImageView() {
+        return mImageView;
+    }
+
     @Override
     public void run() {
         if (waitIfPaused()) {
@@ -50,48 +57,30 @@ public class LoadTask implements Runnable {
             return;
         }
 
-        boolean isNet = false;
-        if (URLUtil.isNetworkUrl(imagePath)) {
-            isNet = true;
-        }
-
-        mImageView.setTag(imagePath);
-
-        //  从缓存中读取Bitmap
-        Bitmap bm = mCacheManager.getBitmapFromLruCache(imagePath);
-
-        if (bm == null) {
-            if (isNet) {    //是网络图片
-                //从存储中读取Bitmap
-                File file = mCacheManager.getBitmapFromDiskCache(mImageView.getContext(), imagePath);
-                if (file.exists()) {
+        Bitmap bm;
+        //从存储中读取Bitmap
+        File file = mCacheManager.getBitmapFromDiskCache(mImageView.getContext(), imagePath);
+        if (file.exists()) {
+            bm = ImageUtil.getBitmapFromLocal(file.getAbsolutePath(), mImageView);
+        } else {
+            //缓存文件不存在
+            if (options.diskCache) {
+                //保存到存储
+                boolean downloadresult = ImageUtil.downloadImageToFile(imagePath, file);
+                if (downloadresult) {
+                    //下载成功
                     bm = ImageUtil.getBitmapFromLocal(file.getAbsolutePath(), mImageView);
                 } else {
-                    //缓存文件不存在
-                    if (options.diskCache) {
-                        //保存到存储
-                        boolean downloadresult = ImageUtil.downloadImageToFile(imagePath, file);
-                        if (downloadresult) {
-                            //下载成功
-                            bm = ImageUtil.getBitmapFromLocal(file.getAbsolutePath(), mImageView);
-                        } else {
-                            //下载失败，加载默认失败图片
-                            bm = BitmapFactory.decodeResource(mImageView.getResources(), R.mipmap.load_failed);
-                        }
-                    } else {
-                        //直接从网络加载
-                        bm = ImageUtil.downloadImgByUrl(imagePath, mImageView);
-                    }
-                }
-                // 添加图像到内存缓存
-                mCacheManager.addBitmapToLruCache(imagePath, bm);
-            } else {    //不是网络图片，尝试从本地加载
-                bm = ImageUtil.getBitmapFromLocal(imagePath, mImageView);
-                if (bm == null) {
+                    //下载失败，加载默认失败图片
                     bm = BitmapFactory.decodeResource(mImageView.getResources(), R.mipmap.load_failed);
                 }
+            } else {
+                //直接从网络加载
+                bm = ImageUtil.downloadImgByUrl(imagePath, mImageView);
             }
         }
+        // 添加图像到内存缓存
+        mCacheManager.addBitmapToLruCache(imagePath, bm);
         ImageObject imageBean = new ImageObject(bm, imagePath, mImageView);
         Message msg = handler.obtainMessage(Brush.LOAD_IMAGE);
         msg.obj = imageBean;

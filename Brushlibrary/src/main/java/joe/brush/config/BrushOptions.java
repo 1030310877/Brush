@@ -6,6 +6,8 @@ package joe.brush.config;
  */
 public class BrushOptions {
 
+    public int maxthreadCount = 8;
+
     //同时加载的线程数量
     public int threadCount = 5;
 
