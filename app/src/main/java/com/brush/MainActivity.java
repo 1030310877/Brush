@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
                 imagesPaths.add(temp.get("data"));
             }
         }
-        GridLayoutManager glm = new GridLayoutManager(this, 4);
+        GridLayoutManager glm = new GridLayoutManager(this, 3);
         recyclerView.setLayoutManager(glm);
         recyclerView.setAdapter(new MyAdapter());
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             ImageView imgview = new ImageView(MainActivity.this);
-            imgview.setLayoutParams(new ViewGroup.LayoutParams(200, 150));
+            imgview.setLayoutParams(new ViewGroup.LayoutParams(400, 250));
             return new ViewHolder(imgview);
         }
 
