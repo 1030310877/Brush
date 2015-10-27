@@ -96,32 +96,15 @@ public class Brush {
     public synchronized Brush setBrushOptions(BrushOptions brushOptions) {
         this.brushOptions = brushOptions;
         cacheManager.setOptions(brushOptions);
+        engine.setBrushOptions(brushOptions);
         return instance;
     }
 
     public void pauseLoad() {
+        engine.pause();
     }
-//
-//    private boolean waitIfPaused() {
-//        AtomicBoolean pause = engine.getPaused();
-//        if (pause.get()) {
-//            synchronized (engine.getPauseLock()) {
-//                if (pause.get()) {
-//                    Log.d("Brush", "task is paused");
-//                    try {
-//                        engine.getPauseLock().wait();
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                        return true;
-//                    }
-//                }
-//            }
-//        }
-//        return false;
-//    }
-//
-//    private boolean isViewReused(String path, ImageView imageView) {
-//        String cacehString = engine.getImageViewString(imageView);
-//        return !engine.generateKey(path).equals(cacehString);
-//    }
+
+    public void resumeLoad() {
+        engine.resume();
+    }
 }

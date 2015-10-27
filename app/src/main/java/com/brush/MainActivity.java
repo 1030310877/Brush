@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import joe.brush.Brush;
+import joe.brush.listener.PauseRecycleViewOnScrollListener;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -45,17 +46,8 @@ public class MainActivity extends AppCompatActivity {
         GridLayoutManager glm = new GridLayoutManager(this, 3);
         recyclerView.setLayoutManager(glm);
         recyclerView.setAdapter(new MyAdapter());
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-            }
-
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-            }
-        });
+        //滑动时停止加载
+        recyclerView.addOnScrollListener(new PauseRecycleViewOnScrollListener(Brush.getInstance(), true));
     }
 
     // 必须在查找前进行全盘的扫描，否则新加入的图片是无法得到显示的(加入对sd卡操作的权限)
