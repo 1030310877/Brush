@@ -70,3 +70,7 @@ public BrushOptions setLoadingShowPic(int resId)
 public BrushOptions setErrorShowPic(int resId)
 ```
 设置加载失败时显示的图片资源
+
+###PauseOnScrollListener  PauseRecycleViewOnScrollListener
+分别继承AbsListView.OnScrollListener和RecyclerView.OnScrollListener。
+实现可以滑动的view，滑动时停止加载，滑动完成恢复加载。
