@@ -3,6 +3,7 @@ package com.brush;
 import android.app.Application;
 
 import joe.brush.Brush;
+import joe.brush.config.BrushOptions;
 
 /**
  * Description
@@ -13,6 +14,6 @@ public class DemoApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Brush.getInstance();
+        Brush.setOptions(new BrushOptions().setDiskCache(true));
     }
 }

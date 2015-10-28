@@ -6,7 +6,6 @@ package joe.brush.config;
  */
 public class BrushOptions {
 
-    //TODO 默认加载图案，加载失败图案
     public int maxthreadCount = 8;
 
     //同时加载的线程数量
@@ -20,4 +19,77 @@ public class BrushOptions {
 
     public int maxImageWidth = 800;
     public int maxImageHeight = 480;
+
+    private int loading_pic = 0;
+
+    private int error_pic = 0;
+
+    public BrushOptions() {
+
+    }
+
+    /**
+     * 设置能够同时执行的线程数量
+     *
+     * @param num
+     * @param maxNum
+     * @return
+     */
+    public BrushOptions setThreadCount(int num, int maxNum) {
+        threadCount = num;
+        maxthreadCount = maxNum;
+        return this;
+    }
+
+    /**
+     * 是否开启磁盘缓存
+     *
+     * @param tf
+     * @return
+     */
+    public BrushOptions setDiskCache(boolean tf) {
+        diskCache = tf;
+        return this;
+    }
+
+    /**
+     * 设置磁盘缓存目录
+     *
+     * @param path
+     * @return
+     */
+    public BrushOptions setDiskCachePath(String path) {
+        cachePath = path;
+        return this;
+    }
+
+    /**
+     * 设置正在加载图片时显示的图片
+     *
+     * @param resId
+     * @return
+     */
+    public BrushOptions setLoadingShowPic(int resId) {
+        loading_pic = resId;
+        return this;
+    }
+
+    public int getLoadingShowpic() {
+        return loading_pic;
+    }
+
+    /**
+     * 设置加载错误时显示的图片
+     *
+     * @param resId
+     * @return
+     */
+    public BrushOptions setErrorShowPic(int resId) {
+        error_pic = resId;
+        return this;
+    }
+
+    public int getErrorShowPic() {
+        return error_pic;
+    }
 }

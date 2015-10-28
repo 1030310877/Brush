@@ -17,16 +17,25 @@ import joe.brush.util.CacheManager;
  */
 public class Brush {
 
-    private static final int DO_TASK = 0x11;
     public static final int LOAD_IMAGE = 0xaa;
 
     private static Brush instance;
+    private static boolean isSetOption = false;
 
     public static Brush getInstance() {
+        if (isSetOption && instance != null) {
+            return instance;
+        } else {
+            return null;
+        }
+    }
+
+    public static Brush setOptions(BrushOptions options) {
         if (instance == null) {
             synchronized (Brush.class) {
                 if (instance == null) {
-                    instance = new Brush();
+                    instance = new Brush(options);
+                    isSetOption = true;
                 }
             }
         }
@@ -45,8 +54,8 @@ public class Brush {
     // UI线程
     private Handler mUIHandler;
 
-    private Brush() {
-        brushOptions = new BrushOptions();
+    private Brush(BrushOptions options) {
+        brushOptions = options;
         cacheManager = CacheManager.getInstance(brushOptions);
 
         mUIHandler = new Handler() {
@@ -74,7 +83,11 @@ public class Brush {
 
     public void paintImage(String path, final ImageView imageView) {
         engine.recordImageView(imageView, path);
-        imageView.setImageResource(R.mipmap.pic_loading);
+        if (brushOptions.getLoadingShowpic() == 0) {
+            imageView.setImageResource(R.mipmap.pic_loading);
+        } else {
+            imageView.setImageResource(brushOptions.getLoadingShowpic());
+        }
 
         //  从缓存中读取Bitmap
         Bitmap bm = cacheManager.getBitmapFromLruCache(path);
@@ -93,13 +106,6 @@ public class Brush {
         return brushOptions;
     }
 
-    public synchronized Brush setBrushOptions(BrushOptions brushOptions) {
-        this.brushOptions = brushOptions;
-        cacheManager.setOptions(brushOptions);
-        engine.setBrushOptions(brushOptions);
-        return instance;
-    }
-
     public void pauseLoad() {
         engine.pause();
     }
@@ -110,5 +116,10 @@ public class Brush {
 
     public void stopLoad() {
         engine.stop();
+    }
+
+    public void resetSelf() {
+        instance = null;
+        isSetOption = false;
     }
 }

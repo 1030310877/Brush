@@ -18,7 +18,7 @@ import joe.brush.util.ImageUtil;
 import joe.brush.util.ViewUtil;
 
 /**
- * Description
+ * Description  下载图片的任务类
  * Created by chenqiao on 2015/10/28.
  */
 public class DownLoadPicTask {

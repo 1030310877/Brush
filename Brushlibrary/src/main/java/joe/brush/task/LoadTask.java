@@ -20,7 +20,7 @@ import joe.brush.util.CacheManager;
 import joe.brush.util.ImageUtil;
 
 /**
- * Description
+ * Description  加载图片任务类
  * Created by chenqiao on 2015/10/26.
  */
 public class LoadTask implements Runnable {
@@ -83,7 +83,11 @@ public class LoadTask implements Runnable {
                         bm = ImageUtil.getBitmapFromLocal(file.getAbsolutePath(), mImageView);
                     } else {
                         //下载失败，加载默认失败图片
-                        bm = BitmapFactory.decodeResource(mImageView.getResources(), R.mipmap.load_failed);
+                        if (options.getErrorShowPic() == 0) {
+                            bm = BitmapFactory.decodeResource(mImageView.getResources(), R.mipmap.load_failed);
+                        } else {
+                            bm = BitmapFactory.decodeResource(mImageView.getResources(), options.getErrorShowPic());
+                        }
                     }
                 } else {
                     //直接从网络加载

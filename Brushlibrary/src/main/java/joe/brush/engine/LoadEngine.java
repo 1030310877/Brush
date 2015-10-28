@@ -89,10 +89,6 @@ public class LoadEngine {
         imageViewManager.clear();
     }
 
-    public void setBrushOptions(BrushOptions brushOptions) {
-        this.brushOptions = brushOptions;
-    }
-
     public String generateKey(String imageUri) {
         return imageUri + "_" + brushOptions.maxImageWidth + "x" + brushOptions.maxImageHeight;
     }
