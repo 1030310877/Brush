@@ -107,4 +107,8 @@ public class Brush {
     public void resumeLoad() {
         engine.resume();
     }
+
+    public void stopLoad() {
+        engine.stop();
+    }
 }

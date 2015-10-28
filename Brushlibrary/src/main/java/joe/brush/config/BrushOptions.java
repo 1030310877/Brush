@@ -6,6 +6,7 @@ package joe.brush.config;
  */
 public class BrushOptions {
 
+    //TODO 默认加载图案，加载失败图案
     public int maxthreadCount = 8;
 
     //同时加载的线程数量

@@ -18,7 +18,7 @@ public class MD5Helper {
 
     static {
         try {
-            MessageDigest.getInstance("MD5");
+            md = MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
@@ -50,12 +50,13 @@ public class MD5Helper {
         String resultString = null;
         try {
             resultString = origin;
-            if (charsetname == null || "".equals(charsetname))
+            if (charsetname == null || "".equals(charsetname)) {
                 resultString = byteArrayToHexString(md.digest(resultString
                         .getBytes()));
-            else
+            } else {
                 resultString = byteArrayToHexString(md.digest(resultString
                         .getBytes(charsetname)));
+            }
         } catch (Exception exception) {
             return null;
         }

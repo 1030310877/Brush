@@ -69,7 +69,7 @@ public class CacheManager {
         } else {
             dirPath = options.cachePath + File.separator;
         }
-        String fileName = MD5Helper.MD5Encode(path, "utf-8");
+        String fileName = MD5Helper.MD5Encode(path, null);
         return new File(dirPath + fileName);
     }
 

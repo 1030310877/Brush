@@ -28,21 +28,55 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<String> imagesPaths = new ArrayList<>();
 
+    private String[] imgs = new String[]{"http://img.daimg.com/uploads/allimg/151027/3-15102F020550-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151027/3-15102F014480-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151027/3-15102F004490-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151026/3-1510262351090-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151026/3-1510262345400-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151026/3-1510262336190-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151026/3-1510262324130-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151026/3-151026230R20-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151026/3-1510262235500-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151026/3-151026222Z30-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151026/3-151026221S90-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151026/3-1510262200370-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151026/3-1510261J0390-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151026/3-1510261I5550-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151026/3-1510261HP00-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151026/3-1510261GI30-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151026/3-1510261FR50-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151026/3-1510261626460-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151026/3-1510261615100-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151026/3-1510261556420-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151026/3-1510261550190-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151026/3-1510261531140-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151026/3-1510261525520-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151026/3-1510261521250-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151026/3-1510261513310-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151026/3-1510260002470-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151025/3-151025235T50-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151025/3-1510252352260-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151025/3-151025234F00-L.jpg",
+            "http://img.daimg.com/uploads/allimg/151025/3-151025233H70-L.jpg"};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         recyclerView = (RecyclerView) findViewById(R.id.recycleview);
-        imageService = new ImageService(this);
-        allScan();
-        // 获得所有的图片
-        images = imageService.getImages();
-        if (images.size() > 0) {
-            // 将所有的图片显示在listview中
-            for (HashMap<String, String> temp : images) {
-                imagesPaths.add(temp.get("data"));
-            }
-        }
+
+        //加载本地图片，如果要测试加载本地图片，将下列注释以及adapter中的注释恢复，并注释网络图片部分
+//        imageService = new ImageService(this);
+//
+//        allScan();
+//        // 获得所有的图片
+//        images = imageService.getImages();
+//        if (images.size() > 0) {
+//            // 将所有的图片显示在listview中
+//            for (HashMap<String, String> temp : images) {
+//                imagesPaths.add(temp.get("data"));
+//            }
+//        }
         GridLayoutManager glm = new GridLayoutManager(this, 3);
         recyclerView.setLayoutManager(glm);
         recyclerView.setAdapter(new MyAdapter());
@@ -81,12 +115,18 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            Brush.getInstance().paintImage(imagesPaths.get(position), holder.img);
+            // 加载网络图片
+            Brush.getInstance().paintImage(imgs[position], holder.img);
+            // 加载本地图片
+            // Brush.getInstance().paintImage(imagesPaths.get(position), holder.img);
         }
 
         @Override
         public int getItemCount() {
-            return imagesPaths.size();
+            // 加载网络图片
+            return imgs.length;
+            // 加载本地图片
+            //return imagesPaths.size();
         }
     }
 }

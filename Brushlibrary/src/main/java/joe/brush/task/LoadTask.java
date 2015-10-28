@@ -74,8 +74,10 @@ public class LoadTask implements Runnable {
             } else {
                 //缓存文件不存在
                 if (options.diskCache) {
+                    Log.d("Brush", "load pic from internet to file");
                     //保存到存储
-                    boolean downloadresult = ImageUtil.downloadImageToFile(imagePath, file);
+                    DownLoadPicTask downLoadPicTask = new DownLoadPicTask(imagePath, mImageView, file);
+                    boolean downloadresult = downLoadPicTask.downloadImageToFile();
                     if (downloadresult) {
                         //下载成功
                         bm = ImageUtil.getBitmapFromLocal(file.getAbsolutePath(), mImageView);
@@ -85,7 +87,9 @@ public class LoadTask implements Runnable {
                     }
                 } else {
                     //直接从网络加载
-                    bm = ImageUtil.downloadImgByUrl(imagePath, mImageView);
+                    Log.d("Brush", "load pic from internet not to file");
+                    DownLoadPicTask downLoadPicTask = new DownLoadPicTask(imagePath, mImageView, null);
+                    bm = downLoadPicTask.downloadImgByUrl();
                 }
                 // 添加图像到内存缓存
                 mCacheManager.addBitmapToLruCache(imagePath, bm);

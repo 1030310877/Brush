@@ -70,7 +70,6 @@ public class ImageUtil {
     private static int computeInitialSampleSize(BitmapFactory.Options options, int minSideLength, int maxNumOfPixels) {
         double w = options.outWidth;
         double h = options.outHeight;
-        Log.d("Brush", "pic width:" + w + "   height:" + h);
         int lowerBound = (maxNumOfPixels == -1) ? 1 : (int) Math.ceil(Math.sqrt(w * h / maxNumOfPixels));
         int upperBound = (minSideLength == -1) ? 128 : (int) Math.min(Math.floor(w / minSideLength), Math.floor(h / minSideLength));
         if (upperBound < lowerBound) {
@@ -95,7 +94,7 @@ public class ImageUtil {
             URL url = new URL(urlStr);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             is = new BufferedInputStream(conn.getInputStream());
-            is.mark(is.available());
+            is.mark(is.available() + 1);
 
             BitmapFactory.Options opts = new BitmapFactory.Options();
             opts.inJustDecodeBounds = true;
@@ -111,6 +110,7 @@ public class ImageUtil {
             return bitmap;
         } catch (IOException e) {
             e.printStackTrace();
+            Log.e("Brush", "error occured:" + e.getMessage());
         } finally {
             if (is != null) {
                 try {
