@@ -71,6 +71,8 @@ public class LoadTask implements Runnable {
             File file = mCacheManager.getBitmapFromDiskCache(mImageView.getContext(), imagePath);
             if (file.exists()) {
                 bm = ImageUtil.getBitmapFromLocal(file.getAbsolutePath(), mImageView);
+                // 添加图像到内存缓存
+                mCacheManager.addBitmapToLruCache(imagePath, bm);
             } else {
                 //缓存文件不存在
                 if (options.diskCache) {
@@ -81,6 +83,8 @@ public class LoadTask implements Runnable {
                     if (downloadresult) {
                         //下载成功
                         bm = ImageUtil.getBitmapFromLocal(file.getAbsolutePath(), mImageView);
+                        // 添加图像到内存缓存
+                        mCacheManager.addBitmapToLruCache(imagePath, bm);
                     } else {
                         //下载失败，加载默认失败图片
                         if (options.getErrorShowPic() == 0) {
@@ -94,9 +98,11 @@ public class LoadTask implements Runnable {
                     Log.d("Brush", "load pic from internet not to file");
                     DownLoadPicTask downLoadPicTask = new DownLoadPicTask(imagePath, mImageView, null);
                     bm = downLoadPicTask.downloadImgByUrl();
+                    // 添加图像到内存缓存
+                    if (bm != null) {
+                        mCacheManager.addBitmapToLruCache(imagePath, bm);
+                    }
                 }
-                // 添加图像到内存缓存
-                mCacheManager.addBitmapToLruCache(imagePath, bm);
             }
         }
         ImageObject imageBean = new ImageObject(bm, imagePath, mImageView);
