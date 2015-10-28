@@ -4,6 +4,7 @@
 可加载本地和网络图片。
 使用图片压缩机制，尽可能避免OOM。拥有两级缓存机制，内存缓存和磁盘缓存。
 
+![](https://github.com/1030310877/Brush/blob/master/Gif/demo.gif)
 ##使用说明
 推荐在Application中使用Brush.setOptions(new BrushOption())进行初始化。
 初始化后，一行代码实现图像异步加载。
