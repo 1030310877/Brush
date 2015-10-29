@@ -95,6 +95,8 @@ public class DownLoadPicTask {
             fos.flush();
         } catch (IOException e) {
             e.printStackTrace();
+            Log.e("Brush", "error occured:" + e.getMessage());
+            file.delete();
             return false;
         } finally {
             try {
