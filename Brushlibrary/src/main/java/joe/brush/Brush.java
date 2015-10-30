@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import joe.brush.bean.ImageObject;
 import joe.brush.config.BrushOptions;
 import joe.brush.engine.LoadEngine;
+import joe.brush.listener.OnPaintListener;
 import joe.brush.task.LoadTask;
 import joe.brush.util.CacheManager;
 
@@ -26,7 +27,8 @@ public class Brush {
         if (isSetOption && instance != null) {
             return instance;
         } else {
-            return null;
+            isSetOption = true;
+            return new Brush(new BrushOptions());
         }
     }
 
@@ -69,6 +71,15 @@ public class Brush {
                     if (engine.generateKey(path).equals(engine.getImageViewString(imgView))) {
                         imgView.setImageBitmap(bm);
                         engine.removeImageView(imgView);    //移除ImageView的记录
+                        if (msg.arg1 == 1) {
+                            if (imageObject.listener != null) {
+                                imageObject.listener.onPaintSucceed(imgView);
+                            }
+                        } else {
+                            if (imageObject.listener != null) {
+                                imageObject.listener.onPaintFailed(imgView);
+                            }
+                        }
                     } else {
                         if (bm != null) {
                             bm.recycle();
@@ -82,6 +93,10 @@ public class Brush {
     }
 
     public void paintImage(String path, final ImageView imageView) {
+        paintImage(path, imageView, null);
+    }
+
+    public void paintImage(String path, final ImageView imageView, OnPaintListener listener) {
         engine.recordImageView(imageView, path);
         if (brushOptions.getLoadingShowpic() == 0) {
             imageView.setImageResource(R.mipmap.pic_loading);
@@ -89,15 +104,19 @@ public class Brush {
             imageView.setImageResource(brushOptions.getLoadingShowpic());
         }
 
+        if (listener != null) {
+            listener.onPaintStart(imageView);
+        }
         //  从缓存中读取Bitmap
         Bitmap bm = cacheManager.getBitmapFromLruCache(path);
         if (bm != null && !bm.isRecycled()) {
-            ImageObject imageBean = new ImageObject(bm, path, imageView);
+            ImageObject imageBean = new ImageObject(bm, path, imageView, listener);
             Message msg = mUIHandler.obtainMessage(Brush.LOAD_IMAGE);
             msg.obj = imageBean;
+            msg.arg1 = 1;
             mUIHandler.sendMessage(msg);
         } else {
-            LoadTask task = new LoadTask(engine, path, imageView, brushOptions, cacheManager, mUIHandler);
+            LoadTask task = new LoadTask(engine, path, imageView, listener, brushOptions, cacheManager, mUIHandler);
             engine.execute(task);
         }
     }

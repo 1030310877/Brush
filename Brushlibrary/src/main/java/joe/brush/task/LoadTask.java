@@ -16,6 +16,7 @@ import joe.brush.R;
 import joe.brush.bean.ImageObject;
 import joe.brush.config.BrushOptions;
 import joe.brush.engine.LoadEngine;
+import joe.brush.listener.OnPaintListener;
 import joe.brush.util.CacheManager;
 import joe.brush.util.ImageUtil;
 
@@ -31,11 +32,13 @@ public class LoadTask implements Runnable {
     private Handler handler;
     private BrushOptions options;
     private LoadEngine engine;
+    private OnPaintListener listener;
 
-    public LoadTask(LoadEngine engine, String path, ImageView imageView, BrushOptions brushOptions, CacheManager cacheManager, Handler uiHandler) {
+    public LoadTask(LoadEngine engine, String path, ImageView imageView, OnPaintListener listener, BrushOptions brushOptions, CacheManager cacheManager, Handler uiHandler) {
         this.engine = engine;
         imagePath = path;
         mImageView = imageView;
+        this.listener = listener;
         options = brushOptions;
         mCacheManager = cacheManager;
         handler = uiHandler;
@@ -59,12 +62,16 @@ public class LoadTask implements Runnable {
         }
 
         Bitmap bm;
+        Message msg = handler.obtainMessage(Brush.LOAD_IMAGE);
 
         if (!URLUtil.isNetworkUrl(imagePath)) {
             // 不是网络图片，从尝试从本地加载
             bm = ImageUtil.getBitmapFromLocal(imagePath, mImageView);
             if (bm == null) {
                 bm = BitmapFactory.decodeResource(mImageView.getResources(), R.mipmap.load_failed);
+                msg.arg1 = 0;
+            } else {
+                msg.arg1 = 1;
             }
         } else {
             //从存储中读取Bitmap
@@ -73,6 +80,7 @@ public class LoadTask implements Runnable {
                 bm = ImageUtil.getBitmapFromLocal(file.getAbsolutePath(), mImageView);
                 // 添加图像到内存缓存
                 mCacheManager.addBitmapToLruCache(imagePath, bm);
+                msg.arg1 = 1;
             } else {
                 //缓存文件不存在
                 if (options.diskCache) {
@@ -85,6 +93,7 @@ public class LoadTask implements Runnable {
                         bm = ImageUtil.getBitmapFromLocal(file.getAbsolutePath(), mImageView);
                         // 添加图像到内存缓存
                         mCacheManager.addBitmapToLruCache(imagePath, bm);
+                        msg.arg1 = 1;
                     } else {
                         //下载失败，加载默认失败图片
                         if (options.getErrorShowPic() == 0) {
@@ -92,6 +101,7 @@ public class LoadTask implements Runnable {
                         } else {
                             bm = BitmapFactory.decodeResource(mImageView.getResources(), options.getErrorShowPic());
                         }
+                        msg.arg1 = 0;
                     }
                 } else {
                     //直接从网络加载
@@ -101,12 +111,19 @@ public class LoadTask implements Runnable {
                     // 添加图像到内存缓存
                     if (bm != null) {
                         mCacheManager.addBitmapToLruCache(imagePath, bm);
+                        msg.arg1 = 1;
+                    } else {
+                        if (options.getErrorShowPic() == 0) {
+                            bm = BitmapFactory.decodeResource(mImageView.getResources(), R.mipmap.load_failed);
+                        } else {
+                            bm = BitmapFactory.decodeResource(mImageView.getResources(), options.getErrorShowPic());
+                        }
+                        msg.arg1 = 0;
                     }
                 }
             }
         }
-        ImageObject imageBean = new ImageObject(bm, imagePath, mImageView);
-        Message msg = handler.obtainMessage(Brush.LOAD_IMAGE);
+        ImageObject imageBean = new ImageObject(bm, imagePath, mImageView, listener);
         msg.obj = imageBean;
         handler.sendMessage(msg);
     }

@@ -8,6 +8,7 @@ import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -17,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import joe.brush.Brush;
+import joe.brush.listener.OnPaintListener;
 import joe.brush.listener.PauseRecycleViewOnScrollListener;
 
 public class MainActivity extends AppCompatActivity {
@@ -146,7 +148,22 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             // 加载网络图片
-            Brush.getInstance().paintImage(imgs[position], holder.img);
+            Brush.getInstance().paintImage(imgs[position], holder.img, new OnPaintListener() {
+                @Override
+                public void onPaintStart(ImageView imageView) {
+                    Log.d("Demo", "paint start:" + imageView.hashCode());
+                }
+
+                @Override
+                public void onPaintSucceed(ImageView imageView) {
+                    Log.d("Demo", "paint success:" + imageView.hashCode());
+                }
+
+                @Override
+                public void onPaintFailed(ImageView imageView) {
+                    Log.d("Demo", "paint failed:" + imageView.hashCode());
+                }
+            });
             // 加载本地图片
             // Brush.getInstance().paintImage(imagesPaths.get(position), holder.img);
         }
