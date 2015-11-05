@@ -8,7 +8,6 @@ import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -18,7 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import joe.brush.Brush;
-import joe.brush.listener.OnPaintListener;
 import joe.brush.listener.PauseRecycleViewOnScrollListener;
 
 public class MainActivity extends AppCompatActivity {
@@ -98,22 +96,30 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = (RecyclerView) findViewById(R.id.recycleview);
 
         //加载本地图片，如果要测试加载本地图片，将下列注释以及adapter中的注释恢复，并注释网络图片部分
-//        imageService = new ImageService(this);
-//
-//        allScan();
-//        // 获得所有的图片
-//        images = imageService.getImages();
-//        if (images.size() > 0) {
-//            // 将所有的图片显示在listview中
-//            for (HashMap<String, String> temp : images) {
-//                imagesPaths.add(temp.get("data"));
-//            }
-//        }
+        imageService = new ImageService(this);
+
+        allScan();
+        // 获得所有的图片
+        images = imageService.getImages();
+        if (images.size() > 0) {
+            // 将所有的图片显示在listview中
+            for (HashMap<String, String> temp : images) {
+                imagesPaths.add(temp.get("data"));
+            }
+        }
         GridLayoutManager glm = new GridLayoutManager(this, 3);
         recyclerView.setLayoutManager(glm);
         recyclerView.setAdapter(new MyAdapter());
         //滑动时停止加载
         recyclerView.addOnScrollListener(new PauseRecycleViewOnScrollListener(Brush.getInstance(), true));
+
+        findViewById(R.id.jump).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this, SecondActivity.class));
+                finish();//finish后，查看log，不再有get task的log输出，说明停止接受任务
+            }
+        });
     }
 
     // 必须在查找前进行全盘的扫描，否则新加入的图片是无法得到显示的(加入对sd卡操作的权限)
@@ -148,32 +154,32 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             // 加载网络图片
-            Brush.getInstance().paintImage(imgs[position], holder.img, new OnPaintListener() {
-                @Override
-                public void onPaintStart(ImageView imageView) {
-                    Log.d("Demo", "paint start:" + imageView.hashCode());
-                }
-
-                @Override
-                public void onPaintSucceed(ImageView imageView) {
-                    Log.d("Demo", "paint success:" + imageView.hashCode());
-                }
-
-                @Override
-                public void onPaintFailed(ImageView imageView) {
-                    Log.d("Demo", "paint failed:" + imageView.hashCode());
-                }
-            });
+//            Brush.getInstance().paintImage(imgs[position], holder.img, new OnPaintListener() {
+//                @Override
+//                public void onPaintStart(ImageView imageView) {
+//                    Log.d("Demo", "paint start:" + imageView.hashCode());
+//                }
+//
+//                @Override
+//                public void onPaintSucceed(ImageView imageView) {
+//                    Log.d("Demo", "paint success:" + imageView.hashCode());
+//                }
+//
+//                @Override
+//                public void onPaintFailed(ImageView imageView) {
+//                    Log.d("Demo", "paint failed:" + imageView.hashCode());
+//                }
+//            });
             // 加载本地图片
-            // Brush.getInstance().paintImage(imagesPaths.get(position), holder.img);
+            Brush.getInstance().paintImage(imagesPaths.get(position), holder.img);
         }
 
         @Override
         public int getItemCount() {
             // 加载网络图片
-            return imgs.length;
+//            return imgs.length;
             // 加载本地图片
-            //return imagesPaths.size();
+            return imagesPaths.size();
         }
     }
 }

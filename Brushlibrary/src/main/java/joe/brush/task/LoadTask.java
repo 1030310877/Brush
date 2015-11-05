@@ -1,5 +1,7 @@
 package joe.brush.task;
 
+import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
@@ -60,7 +62,18 @@ public class LoadTask implements Runnable {
         if (mImageView == null || isViewReused(imagePath, mImageView)) {
             return;
         }
+        Context myContext = mImageView.getContext();
+        if (myContext == null) {
+            return;
+        } else {
+            if (myContext instanceof Activity) {
+                if (((Activity) myContext).isFinishing()) {
+                    return;
+                }
+            }
+        }
 
+        Log.d("Brush", "get task");
         Bitmap bm;
         Message msg = handler.obtainMessage(Brush.LOAD_IMAGE);
 
