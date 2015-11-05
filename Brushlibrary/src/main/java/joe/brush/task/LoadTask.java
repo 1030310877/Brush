@@ -73,7 +73,7 @@ public class LoadTask implements Runnable {
             }
         }
 
-        Log.d("Brush", "get task");
+        Log.d("Brush", "get task:" + imagePath);
         Bitmap bm;
         Message msg = handler.obtainMessage(Brush.LOAD_IMAGE);
 
@@ -102,12 +102,14 @@ public class LoadTask implements Runnable {
                     DownLoadPicTask downLoadPicTask = new DownLoadPicTask(imagePath, mImageView, file);
                     boolean downloadresult = downLoadPicTask.downloadImageToFile();
                     if (downloadresult) {
+                        Log.d("Brush", "download success");
                         //下载成功
                         bm = ImageUtil.getBitmapFromLocal(file.getAbsolutePath(), mImageView);
                         // 添加图像到内存缓存
                         mCacheManager.addBitmapToLruCache(imagePath, bm);
                         msg.arg1 = 1;
                     } else {
+                        Log.d("Brush", "download failed");
                         //下载失败，加载默认失败图片
                         if (options.getErrorShowPic() == 0) {
                             bm = BitmapFactory.decodeResource(mImageView.getResources(), R.mipmap.load_failed);
