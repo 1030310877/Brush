@@ -1,8 +1,7 @@
-# Brush
-##轻量级图片异步加载框架
+# Brush图片异步加载框架
 参考[鸿洋大神](http://blog.csdn.net/lmj623565791/article/details/41874561)CSDN上文章以及著名开源图像异步加载框架Android-Universal-Image-Loader编写。
 可加载本地和网络图片。
-使用图片压缩机制，尽可能避免OOM。拥有两级缓存机制，内存缓存和磁盘缓存。
+使用图片压缩机制，大图自动压缩至合理尺寸。拥有两级缓存机制，内存缓存和磁盘缓存。
 
 ![](https://github.com/1030310877/Brush/blob/master/Gif/demo.gif)
 ##使用说明
