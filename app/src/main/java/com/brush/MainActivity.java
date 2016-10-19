@@ -12,23 +12,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import joe.brush.Brush;
+import joe.brush.listener.OnPaintListener;
 import joe.brush.listener.PauseRecycleViewOnScrollListener;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ImageService imageService;
-    private List<HashMap<String, String>> images = new ArrayList<>();
-
     private RecyclerView recyclerView;
-
-    private ArrayList<String> imagesPaths = new ArrayList<>();
-
-    private String[] imgs = new String[]{"http://img.daimg.com/uploads/allimg/151027/3-15102F020550-L.jpg",
+    private String[] imgs = new String[]{
+            "http://img.daimg.com/uploads/allimg/151027/3-15102F020550-L.jpg",
             "http://img.daimg.com/uploads/allimg/151027/3-15102F014480-L.jpg",
             "http://img.daimg.com/uploads/allimg/151027/3-15102F004490-L.jpg",
             "http://img.daimg.com/uploads/allimg/151026/3-1510262351090-L.jpg",
@@ -87,26 +79,14 @@ public class MainActivity extends AppCompatActivity {
             "http://img.daimg.com/uploads/allimg/150625/3-1506252235540-L.jpg",
             "http://img.daimg.com/uploads/allimg/150430/3-1504302355070-L.jpg",
             "http://img.daimg.com/uploads/allimg/150430/3-1504302344440-L.jpg",
-            "http://img.daimg.com/uploads/allimg/150430/3-1504302336070-L.jpg"};
+            "http://img.daimg.com/uploads/allimg/150430/3-1504302336070-L.jpg"
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         recyclerView = (RecyclerView) findViewById(R.id.recycleview);
-
-        //加载本地图片，如果要测试加载本地图片，将下列注释以及adapter中的注释恢复，并注释网络图片部分
-        imageService = new ImageService(this);
-
-        allScan();
-        // 获得所有的图片
-        images = imageService.getImages();
-        if (images.size() > 0) {
-            // 将所有的图片显示在listview中
-            for (HashMap<String, String> temp : images) {
-                imagesPaths.add(temp.get("data"));
-            }
-        }
         GridLayoutManager glm = new GridLayoutManager(this, 3);
         recyclerView.setLayoutManager(glm);
         recyclerView.setAdapter(new MyAdapter());
@@ -126,7 +106,6 @@ public class MainActivity extends AppCompatActivity {
     public void allScan() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + Environment.getExternalStorageDirectory())));
-
         } else {
             sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://" + Environment.getExternalStorageDirectory())));
         }
@@ -154,32 +133,29 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             // 加载网络图片
-//            Brush.getInstance().paintImage(imgs[position], holder.img, new OnPaintListener() {
-//                @Override
-//                public void onPaintStart(ImageView imageView) {
-//                    Log.d("Demo", "paint start:" + imageView.hashCode());
-//                }
-//
-//                @Override
-//                public void onPaintSucceed(ImageView imageView) {
-//                    Log.d("Demo", "paint success:" + imageView.hashCode());
-//                }
-//
-//                @Override
-//                public void onPaintFailed(ImageView imageView) {
-//                    Log.d("Demo", "paint failed:" + imageView.hashCode());
-//                }
-//            });
+            Brush.getInstance().paintImage(imgs[position], holder.img, new OnPaintListener() {
+                @Override
+                public void onPaintStart(ImageView imageView) {
+                }
+
+                @Override
+                public void onPaintSucceed(ImageView imageView) {
+                }
+
+                @Override
+                public void onPaintFailed(ImageView imageView) {
+                }
+            });
             // 加载本地图片
-            Brush.getInstance().paintImage(imagesPaths.get(position), holder.img);
+//            Brush.getInstance().paintImage(imagesPaths.get(position), holder.img);
         }
 
         @Override
         public int getItemCount() {
             // 加载网络图片
-//            return imgs.length;
+            return imgs.length;
             // 加载本地图片
-            return imagesPaths.size();
+//            return imagesPaths.size();
         }
     }
 }

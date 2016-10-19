@@ -5,7 +5,7 @@
 
 ![](https://github.com/1030310877/Brush/blob/master/Gif/demo.gif)
 ##使用说明
-推荐在Application中使用Brush.setOptions(new BrushOption())进行初始化。
+推荐在Application中使用Brush.setOptions(new BrushOptions())进行初始化。
 初始化后，一行代码实现图像异步加载。
 ```
  Brush.getInstance().paintImage(imgUrl, imageView);

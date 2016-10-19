@@ -81,7 +81,7 @@ public class LoadTask implements Runnable {
             // 不是网络图片，从尝试从本地加载
             bm = ImageUtil.getBitmapFromLocal(imagePath, mImageView);
             if (bm == null) {
-                bm = BitmapFactory.decodeResource(mImageView.getResources(), R.mipmap.load_failed);
+                bm = BitmapFactory.decodeResource(mImageView.getResources(), R.drawable.load_failed);
                 msg.arg1 = 0;
             } else {
                 msg.arg1 = 1;
@@ -100,8 +100,8 @@ public class LoadTask implements Runnable {
                     Log.d("Brush", "load pic from internet to file");
                     //保存到存储
                     DownLoadPicTask downLoadPicTask = new DownLoadPicTask(imagePath, mImageView, file);
-                    boolean downloadresult = downLoadPicTask.downloadImageToFile();
-                    if (downloadresult) {
+                    boolean downloadResult = downLoadPicTask.downloadImageToFile();
+                    if (downloadResult) {
                         Log.d("Brush", "download success");
                         //下载成功
                         bm = ImageUtil.getBitmapFromLocal(file.getAbsolutePath(), mImageView);
@@ -112,7 +112,7 @@ public class LoadTask implements Runnable {
                         Log.d("Brush", "download failed");
                         //下载失败，加载默认失败图片
                         if (options.getErrorShowPic() == 0) {
-                            bm = BitmapFactory.decodeResource(mImageView.getResources(), R.mipmap.load_failed);
+                            bm = BitmapFactory.decodeResource(mImageView.getResources(), R.drawable.load_failed);
                         } else {
                             bm = BitmapFactory.decodeResource(mImageView.getResources(), options.getErrorShowPic());
                         }
@@ -129,7 +129,7 @@ public class LoadTask implements Runnable {
                         msg.arg1 = 1;
                     } else {
                         if (options.getErrorShowPic() == 0) {
-                            bm = BitmapFactory.decodeResource(mImageView.getResources(), R.mipmap.load_failed);
+                            bm = BitmapFactory.decodeResource(mImageView.getResources(), R.drawable.load_failed);
                         } else {
                             bm = BitmapFactory.decodeResource(mImageView.getResources(), options.getErrorShowPic());
                         }
@@ -162,7 +162,7 @@ public class LoadTask implements Runnable {
     }
 
     private boolean isViewReused(String path, ImageView imageView) {
-        String cacehString = engine.getImageViewString(imageView);
-        return !engine.generateKey(path).equals(cacehString);
+        String cacheString = engine.getImageViewString(imageView);
+        return !engine.generateKey(path).equals(cacheString);
     }
 }

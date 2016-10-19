@@ -14,6 +14,8 @@ public class DemoApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Brush.setOptions(new BrushOptions().setDiskCache(true));
+        BrushOptions options = new BrushOptions();
+        options.setDiskCache(true);
+        Brush.setOptions(options);
     }
 }

@@ -62,8 +62,12 @@ public class CacheManager {
         }
     }
 
+    public void removeBitmapFromLruCache(String path) {
+        imageCache.remove(path);
+    }
+
     public File getBitmapFromDiskCache(Context context, String path) {
-        String dirPath = null;
+        String dirPath;
         if ("default".equals(options.cachePath)) {
             dirPath = getDiskCacheDir(context) + File.separator;
         } else {
@@ -74,7 +78,7 @@ public class CacheManager {
     }
 
     private String getDiskCacheDir(Context context) {
-        String cachePath = null;
+        String cachePath;
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
                 || !Environment.isExternalStorageRemovable()) {
             cachePath = context.getExternalCacheDir().getAbsolutePath();

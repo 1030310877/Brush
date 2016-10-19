@@ -2,6 +2,7 @@ package joe.brush;
 
 import android.graphics.Bitmap;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.widget.ImageView;
 
@@ -60,7 +61,7 @@ public class Brush {
         brushOptions = options;
         cacheManager = CacheManager.getInstance(brushOptions);
 
-        mUIHandler = new Handler() {
+        mUIHandler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
                 if (msg.what == LOAD_IMAGE) {
@@ -89,7 +90,7 @@ public class Brush {
                 }
             }
         };
-        engine = new LoadEngine(brushOptions, mUIHandler);
+        engine = new LoadEngine(brushOptions);
     }
 
     public void paintImage(String path, final ImageView imageView) {
@@ -99,7 +100,7 @@ public class Brush {
     public void paintImage(String path, final ImageView imageView, OnPaintListener listener) {
         engine.recordImageView(imageView, path);
         if (brushOptions.getLoadingShowpic() == 0) {
-            imageView.setImageResource(R.mipmap.pic_loading);
+            imageView.setImageResource(R.drawable.pic_loading);
         } else {
             imageView.setImageResource(brushOptions.getLoadingShowpic());
         }
@@ -109,12 +110,18 @@ public class Brush {
         }
         //  从缓存中读取Bitmap
         Bitmap bm = cacheManager.getBitmapFromLruCache(path);
-        if (bm != null && !bm.isRecycled()) {
-            ImageObject imageBean = new ImageObject(bm, path, imageView, listener);
-            Message msg = mUIHandler.obtainMessage(Brush.LOAD_IMAGE);
-            msg.obj = imageBean;
-            msg.arg1 = 1;
-            mUIHandler.sendMessage(msg);
+        if (bm != null) {
+            if (!bm.isRecycled()) {
+                ImageObject imageBean = new ImageObject(bm, path, imageView, listener);
+                Message msg = mUIHandler.obtainMessage(Brush.LOAD_IMAGE);
+                msg.obj = imageBean;
+                msg.arg1 = 1;
+                mUIHandler.sendMessage(msg);
+            } else {
+                cacheManager.removeBitmapFromLruCache(path);
+                LoadTask task = new LoadTask(engine, path, imageView, listener, brushOptions, cacheManager, mUIHandler);
+                engine.execute(task);
+            }
         } else {
             LoadTask task = new LoadTask(engine, path, imageView, listener, brushOptions, cacheManager, mUIHandler);
             engine.execute(task);

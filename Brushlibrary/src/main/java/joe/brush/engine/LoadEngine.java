@@ -1,6 +1,5 @@
 package joe.brush.engine;
 
-import android.os.Handler;
 import android.widget.ImageView;
 
 import java.util.Collections;
@@ -24,7 +23,6 @@ import joe.brush.task.LoadTask;
  */
 public class LoadEngine {
     private BrushOptions brushOptions;
-    private Handler handler;
     private final Map<Integer, String> imageViewManager = Collections.synchronizedMap(new HashMap<Integer, String>());
     private final AtomicBoolean paused = new AtomicBoolean(false);
     private final Object pauseLock = new Object();
@@ -33,9 +31,8 @@ public class LoadEngine {
     private ExecutorService localThreadPool;
     private Executor downloadThreadPool;
 
-    public LoadEngine(BrushOptions options, Handler mUIHandler) {
+    public LoadEngine(BrushOptions options) {
         this.brushOptions = options;
-        this.handler = mUIHandler;
         localThreadPool = Executors.newCachedThreadPool();
 
         BlockingQueue<Runnable> taskQueue = new LinkedBlockingQueue<>();
