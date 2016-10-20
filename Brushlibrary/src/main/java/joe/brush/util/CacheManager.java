@@ -58,7 +58,9 @@ public class CacheManager {
 
     public void addBitmapToLruCache(String path, Bitmap bm) {
         if (imageCache.get(path) == null) {
-            imageCache.put(path, bm);
+            if (bm != null && !bm.isRecycled()) {
+                imageCache.put(path, bm);
+            }
         }
     }
 

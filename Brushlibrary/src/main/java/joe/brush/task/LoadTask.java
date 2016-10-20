@@ -79,6 +79,7 @@ public class LoadTask implements Runnable {
 
         if (!URLUtil.isNetworkUrl(imagePath)) {
             // 不是网络图片，从尝试从本地加载
+            Log.d("Brush", "not valid network url, try to read from disk");
             bm = ImageUtil.getBitmapFromLocal(imagePath, mImageView);
             if (bm == null) {
                 bm = BitmapFactory.decodeResource(mImageView.getResources(), R.drawable.load_failed);
@@ -90,6 +91,7 @@ public class LoadTask implements Runnable {
             //从存储中读取Bitmap
             File file = mCacheManager.getBitmapFromDiskCache(mImageView.getContext(), imagePath);
             if (file.exists()) {
+                Log.d("Brush", "diskCache contains bitmap");
                 bm = ImageUtil.getBitmapFromLocal(file.getAbsolutePath(), mImageView);
                 // 添加图像到内存缓存
                 mCacheManager.addBitmapToLruCache(imagePath, bm);
