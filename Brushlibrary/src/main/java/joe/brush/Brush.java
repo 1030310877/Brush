@@ -93,11 +93,11 @@ public class Brush {
         engine = new LoadEngine(brushOptions);
     }
 
-    public void paintImage(String path, final ImageView imageView) {
+    public void paintImage(String path, ImageView imageView) {
         paintImage(path, imageView, null);
     }
 
-    public void paintImage(String path, final ImageView imageView, OnPaintListener listener) {
+    public void paintImage(String path, ImageView imageView, OnPaintListener listener) {
         engine.recordImageView(imageView, path);
         if (brushOptions.getLoadingShowpic() == 0) {
             imageView.setImageResource(R.drawable.pic_loading);

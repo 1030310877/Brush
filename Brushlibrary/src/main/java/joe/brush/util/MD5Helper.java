@@ -47,7 +47,7 @@ public class MD5Helper {
      * @return MD5校验码
      */
     public static String MD5Encode(String origin, String charsetname) {
-        String resultString = null;
+        String resultString;
         try {
             resultString = origin;
             if (charsetname == null || "".equals(charsetname)) {

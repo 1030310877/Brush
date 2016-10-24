@@ -51,13 +51,8 @@ public class LoadEngine {
         return imageViewManager.get(imageView.hashCode());
     }
 
-    public void execute(final LoadTask task) {
-        localThreadPool.execute(new Runnable() {
-            @Override
-            public void run() {
-                downloadThreadPool.execute(task);
-            }
-        });
+    public void execute(LoadTask task) {
+        localThreadPool.execute(new TaskRunnable(task));
     }
 
     public AtomicBoolean getPaused() {
@@ -88,5 +83,19 @@ public class LoadEngine {
 
     public String generateKey(String imageUri) {
         return imageUri + "_" + brushOptions.maxImageWidth + "x" + brushOptions.maxImageHeight;
+    }
+
+    private class TaskRunnable implements Runnable {
+
+        private LoadTask task;
+
+        TaskRunnable(LoadTask task) {
+            this.task = task;
+        }
+
+        @Override
+        public void run() {
+            downloadThreadPool.execute(task);
+        }
     }
 }

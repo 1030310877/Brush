@@ -140,8 +140,7 @@ public class LoadTask implements Runnable {
                 }
             }
         }
-        ImageObject imageBean = new ImageObject(bm, imagePath, mImageView, listener);
-        msg.obj = imageBean;
+        msg.obj = new ImageObject(bm, imagePath, mImageView, listener);
         handler.sendMessage(msg);
     }
 
